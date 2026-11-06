@@ -35,7 +35,7 @@ class Dictionary(private val buf: ByteArray, private val forms: FormIndex?) {
         }
         val version = readU16(8)
         require(version == FORMAT_VERSION) { "format $version, expected $FORMAT_VERSION" }
-        entryCount = readU32(10).toInt()
+        entryCount = readU32(10)
         stringsBase = HEADER_SIZE + entryCount * ENTRY_SIZE
         require(buf.size >= stringsBase) { "dictionary file is truncated" }
     }
