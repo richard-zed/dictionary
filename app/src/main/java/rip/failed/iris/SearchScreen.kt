@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,13 +80,11 @@ fun SearchScreen() {
                 .safeDrawingPadding()
                 .fillMaxSize(),
         ) {
+            // No bar above the entry. The system back gesture is the only way
+            // out, so BackHandler above has to stay enabled or a tapped entry
+            // becomes a dead end.
             selected?.let { entry ->
-                Column(Modifier.fillMaxSize()) {
-                    TextButton(onClick = { selected = null }, modifier = Modifier.padding(4.dp)) {
-                        Text("Back", color = MaterialTheme.colorScheme.primary)
-                    }
-                    EntryView(entry)
-                }
+                EntryView(entry, Modifier.fillMaxSize())
             } ?: Column(Modifier.fillMaxSize()) {
                 if (query.isBlank()) {
                     Box(Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
