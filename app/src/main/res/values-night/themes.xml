@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Dark counterpart of the theme in values/themes.xml. Only the parent and the
+      window background change: the translucent lookup theme is already
+      transparent over whatever app launched it, so its parent choice does not
+      affect what the user sees.
+    -->
+    <style name="Theme.Iris" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>
