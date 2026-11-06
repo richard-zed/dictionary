@@ -10,11 +10,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Iris">
 
-        <!-- The app proper. Bonus, not the point. -->
+        <!--
+          The app proper. Bonus, not the point.
+
+          windowSoftInputMode="adjustResize" is required alongside
+          enableEdgeToEdge. Without it the window and Compose both account for
+          the keyboard: the system shrinks the window and safeDrawingPadding
+          subtracts the IME inset again, leaving the search field roughly half a
+          screen too high.
+        -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Iris">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
