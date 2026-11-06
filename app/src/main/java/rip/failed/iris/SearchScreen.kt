@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,54 +56,82 @@ fun SearchScreen() {
     // how many results are shown, not to the size of the dictionary.
     val results = remember(query) { search(dict, query, limit = 40) }
 
-    Box(Modifier.fillMaxSize().safeDrawingPadding()) {
-        selected?.let { entry ->
-            Column(Modifier.fillMaxSize()) {
-                TextButton(onClick = { selected = null }, modifier = Modifier.padding(4.dp)) {
-                    Text("Back")
+    // Explicit surface colour rather than inherited: the activity window is
+    // whatever Theme.Iris paints, and a transparent Compose root over it is how
+    // the search field ended up invisible.
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        Box(Modifier.safeDrawingPadding()) {
+            selected?.let { entry ->
+                Column(Modifier.fillMaxSize()) {
+                    TextButton(onClick = { selected = null }, modifier = Modifier.padding(4.dp)) {
+                        Text("Back", color = MaterialTheme.colorScheme.primary)
+                    }
+                    EntryView(entry)
                 }
-                EntryView(entry)
-            }
-        } ?: Column(Modifier.fillMaxSize()) {
-            if (query.isBlank()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        "Type to search",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else if (results.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        stringResource(R.string.not_found, query),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
-                    items(results, key = { it.headword }) { entry ->
-                        EntryPreview(
-                            entry = entry,
-                            modifier = Modifier.clickable { selected = entry },
+            } ?: Column(Modifier.fillMaxSize()) {
+                if (query.isBlank()) {
+                    Box(Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Type to search",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        HorizontalDivider(Modifier.padding(horizontal = 20.dp))
+                    }
+                } else if (results.isEmpty()) {
+                    Box(Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            stringResource(R.string.not_found, query),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
+                        items(results, key = { it.headword }) { entry ->
+                            EntryPreview(
+                                entry = entry,
+                                modifier = Modifier.clickable { selected = entry },
+                            )
+                            HorizontalDivider(
+                                Modifier.padding(horizontal = 20.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
                     }
                 }
-            }
 
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                singleLine = true,
-                placeholder = { Text(stringResource(R.string.search_hint)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .imePadding()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-            )
+                // Every colour is stated. Material3's defaults for an outlined
+                // field resolved against a scheme whose surface matched the
+                // window, leaving the border and hint invisible.
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.search_hint),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .imePadding()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
         }
     }
 }

@@ -41,6 +41,7 @@ fun EntryView(entry: Entry, modifier: Modifier = Modifier) {
                     Text(
                         text = entry.headword,
                         style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(Modifier.padding(horizontal = 4.dp))
                     Text(
@@ -50,7 +51,10 @@ fun EntryView(entry: Entry, modifier: Modifier = Modifier) {
                     )
                 }
             }
-            HorizontalDivider(Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+            HorizontalDivider(
+                Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
         }
         itemsIndexed(entry.glosses) { index, gloss ->
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
@@ -60,7 +64,11 @@ fun EntryView(entry: Entry, modifier: Modifier = Modifier) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(end = 10.dp),
                 )
-                Text(text = gloss, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = gloss,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
     }
@@ -77,7 +85,11 @@ fun EntryPreview(entry: Entry, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(entry.headword, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = entry.headword,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
             Spacer(Modifier.padding(horizontal = 4.dp))
             Text(
                 text = entry.partsOfSpeech.joinToString(", ") { it.shortLabel() },

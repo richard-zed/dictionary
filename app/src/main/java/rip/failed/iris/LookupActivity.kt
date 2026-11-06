@@ -1,17 +1,20 @@
 package rip.failed.iris
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -73,12 +76,33 @@ private fun LookupOverlay(selection: String) {
         else resolveSelection(Assets.dictionary(context), selection)
     }
 
+    // Tap anywhere outside the card to dismiss, which is what a popover does and
+    // is the behaviour a reader expects. The card itself consumes clicks so
+    // tapping the definition does not close it.
     Box(
-        modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp),
-        contentAlignment = Alignment.TopCenter,
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { (context as? Activity)?.finish() },
+            )
+            .navigationBarsPadding()
+            .padding(16.dp),
+        // Bottom, not top. Coming up from the bottom keeps the card near the
+        // back gesture and the keyboard, and leaves the text being read visible
+        // above it.
+        contentAlignment = Alignment.BottomCenter,
     ) {
         Surface(
-            modifier = Modifier.fillMaxWidth().heightIn(max = 460.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 460.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {},
+                ),
             shape = RoundedCornerShape(20.dp),
             tonalElevation = 3.dp,
             shadowElevation = 8.dp,

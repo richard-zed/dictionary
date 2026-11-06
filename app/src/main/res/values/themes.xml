@@ -4,8 +4,13 @@
       Compose draws the content; these themes exist so the window does not flash
       an unstyled frame before the first composition, and so the lookup activity
       can float over the app it was launched from.
+
+      DayNight rather than a fixed Light parent. With Light the window is always
+      light while Compose follows isSystemInDarkTheme(), so on a dark-mode device
+      Compose drew light text onto a light window background and everything read
+      as black on black.
     -->
-    <style name="Theme.Iris" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Iris" parent="android:Theme.DeviceDefault.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
@@ -14,7 +19,7 @@
       over the source app reads closer to a popover than a fresh activity, which
       is as near as Android gets to the iOS Lookup feel.
     -->
-    <style name="Theme.Iris.Translucent" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Iris.Translucent" parent="android:Theme.DeviceDefault.DayNight.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
