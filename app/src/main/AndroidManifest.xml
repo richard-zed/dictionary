@@ -29,7 +29,7 @@
           text on Android. It is not a floating popover the way iOS Lookup is:
           it launches this activity over the source app, hands over the string,
           and the user backs out to return. That difference is a presentation
-          limit, not something an implementation detail can fix -- the platform
+          limit, not something an implementation detail can fix. The platform
           offers no popover-shaped contract.
 
           themeTranslucent keeps the takeover from reading as a full app launch.
