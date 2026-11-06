@@ -58,5 +58,9 @@ fun IrisTheme(
         }
     }
 
-    MaterialTheme(colorScheme = colorScheme, content = content)
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = rip.failed.iris.ui.theme.IrisTypography,
+        content = content,
+    )
 }

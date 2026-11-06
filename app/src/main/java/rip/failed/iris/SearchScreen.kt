@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -70,27 +67,19 @@ fun SearchScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
-        // The keyboard inset is tracked explicitly rather than with imePadding().
+        // safeDrawingPadding() already covers the system bars AND the keyboard
+        // -- it is the union of systemBars and ime. Adding a separate ime
+        // padding on top of it double-counts, which is why the field snapped up
+        // roughly twice as far as the keyboard.
         //
-        // A plain imePadding() computed the padding from an inset that was still
-        // settling while the keyboard animated in, and never recomposed once it
-        // finished -- so the field sat too high until the app was backgrounded
-        // and resumed, at which point a fresh layout pass read the settled
-        // inset and everything looked right. That resume-fixes-it symptom is
-        // what pointed here.
-        //
-        // windowInsetsBottomHeight is read on every composition of the inset
-        // state, so the field follows the keyboard as it animates and stays
-        // put once it stops.
-        val imeBottom = WindowInsets.ime
-            .asPaddingValues()
-            .calculateBottomPadding()
-
+        // It is used alone here, before fillMaxSize so the box measures against
+        // the space that is actually left. Previously the order was fill then
+        // pad, which placed the content against a full-screen measure and made
+        // the overshoot vary between runs.
         Box(
             Modifier
-                .fillMaxSize()
                 .safeDrawingPadding()
-                .padding(bottom = imeBottom),
+                .fillMaxSize(),
         ) {
             selected?.let { entry ->
                 Column(Modifier.fillMaxSize()) {
