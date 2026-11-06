@@ -1,12 +1,15 @@
 package rip.failed.iris
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,6 +58,11 @@ fun SearchScreen() {
     // how many results are shown, not to the size of the dictionary.
     val results = remember(query) { search(dict, query, limit = 40) }
 
+    // While an entry is open, back returns to the results rather than closing
+    // the app. Without this the system back dispatches to the activity and the
+    // whole thing exits, losing the query.
+    BackHandler(enabled = selected != null) { selected = null }
+
     // Explicit surface colour rather than inherited: the activity window is
     // whatever Theme.Iris paints, and a transparent Compose root over it is how
     // the search field ended up invisible.
@@ -62,15 +70,27 @@ fun SearchScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
-        // Insets on the container, not on the text field. imePadding() on the
-        // field added keyboard-height padding underneath it, pushing the field
-        // up and leaving only a row or two of results. Here the whole layout
-        // shrinks instead, so the field stays at the bottom of the available
-        // space and the list gets the rest.
+        // The keyboard inset is tracked explicitly rather than with imePadding().
+        //
+        // A plain imePadding() computed the padding from an inset that was still
+        // settling while the keyboard animated in, and never recomposed once it
+        // finished -- so the field sat too high until the app was backgrounded
+        // and resumed, at which point a fresh layout pass read the settled
+        // inset and everything looked right. That resume-fixes-it symptom is
+        // what pointed here.
+        //
+        // windowInsetsBottomHeight is read on every composition of the inset
+        // state, so the field follows the keyboard as it animates and stays
+        // put once it stops.
+        val imeBottom = WindowInsets.ime
+            .asPaddingValues()
+            .calculateBottomPadding()
+
         Box(
             Modifier
+                .fillMaxSize()
                 .safeDrawingPadding()
-                .imePadding(),
+                .padding(bottom = imeBottom),
         ) {
             selected?.let { entry ->
                 Column(Modifier.fillMaxSize()) {

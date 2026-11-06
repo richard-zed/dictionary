@@ -109,6 +109,53 @@ fun EntryPreview(entry: Entry, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Several words from one selection, each as a compact headword-plus-first-gloss
+ * block rather than a full [EntryView]. A full entry per word would push the
+ * rest off the card, and the overlay's purpose is recognising which word you
+ * want, not reading all of them.
+ */
+@Composable
+fun MultiEntryView(entries: List<Entry>, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(vertical = 8.dp),
+    ) {
+        entries.forEachIndexed { index, entry ->
+            item(key = entry.headword) {
+                if (index > 0) {
+                    HorizontalDivider(
+                        Modifier.padding(horizontal = 20.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
+                }
+                Column(Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = entry.headword,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(Modifier.padding(horizontal = 4.dp))
+                        Text(
+                            text = entry.partsOfSpeech.joinToString(", ") { it.shortLabel() },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    entry.glosses.firstOrNull()?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun PartsOfSpeech.shortLabel(): String = when (this) {
     PartsOfSpeech.NOUN -> "n."
     PartsOfSpeech.VERB -> "v."

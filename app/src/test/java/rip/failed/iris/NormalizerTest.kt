@@ -48,9 +48,18 @@ class NormalizerTest {
     }
 
     @Test
-    fun `multi word selection offers the longest word`() {
-        val c = TextNormalizer.candidates("the inevitable outcome")
-        assertTrue("expected inevitable", c.contains("inevitable"))
+    fun `multi word selection offers every word`() {
+        // It used to keep only the longest, silently discarding the rest.
+        val c = TextNormalizer.candidates("the quick brown fox")
+        assertTrue(c.contains("quick"))
+        assertTrue(c.contains("brown"))
+        assertTrue(c.contains("fox"))
+    }
+
+    @Test
+    fun `the whole phrase is still offered before its words`() {
+        val c = TextNormalizer.candidates("run of the mill")
+        assertTrue(c.contains("run of the mill"))
     }
 
     @Test

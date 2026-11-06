@@ -37,14 +37,18 @@ object TextNormalizer {
             out += s.dropLast(1)
         }
 
-        // A selection can be several words. Longest word is the best guess, but
-        // only when the whole thing is not itself a dictionary phrase -- the
-        // caller tries the full string first, so this is a fallback.
+        // A selection can be several words. The whole string is tried first (it
+        // may be a phrase like "run of the mill"), but every individual word is
+        // offered as well, in order and deduplicated.
+        //
+        // This used to keep only the longest word, which silently discarded the
+        // rest: selecting "the quick brown fox" looked up "brown" and nothing
+        // else. The caller resolves candidates in order and shows the first hit,
+        // so listing them all is what makes a multi-word selection useful.
         if (s.any { it.isWhitespace() }) {
             s.split(WHITESPACE)
                 .filter { it.any(Char::isLetter) }
-                .maxByOrNull { it.length }
-                ?.let { out += it }
+                .forEach { out += it }
         }
 
         return out.filter { it.isNotEmpty() && it.length <= MAX_LEN }

@@ -31,6 +31,7 @@ import rip.failed.iris.core.Dictionary
 import rip.failed.iris.core.Resolution
 import rip.failed.iris.core.TextNormalizer
 import rip.failed.iris.ui.EntryView
+import rip.failed.iris.ui.MultiEntryView
 
 /**
  * The point of the app: a highlighted word becomes a definition.
@@ -71,8 +72,8 @@ class LookupActivity : ComponentActivity() {
 @Composable
 private fun LookupOverlay(selection: String) {
     val context = LocalContext.current
-    val result = remember(selection) {
-        if (selection.isBlank()) null
+    val results = remember(selection) {
+        if (selection.isBlank()) emptyList()
         else resolveSelection(Assets.dictionary(context), selection)
     }
 
@@ -110,8 +111,9 @@ private fun LookupOverlay(selection: String) {
         ) {
             when {
                 selection.isBlank() -> Message("Nothing selected")
-                result?.entry == null -> Message(stringResource(R.string.not_found, selection))
-                else -> EntryView(result.entry)
+                results.isEmpty() -> Message(stringResource(R.string.not_found, selection))
+                results.size == 1 -> EntryView(results.first().entry!!)
+                else -> MultiEntryView(results.mapNotNull { it.entry })
             }
         }
     }
@@ -128,14 +130,22 @@ private fun Message(text: String) {
 }
 
 /**
- * Try each cleaned-up variant of the selection in turn, stopping at the first
- * hit. Selection text arrives with punctuation attached often enough that
- * trying only the raw string would produce spurious "not found" results.
+ * Resolve a selection to the entries worth showing, deduplicated by headword.
+ *
+ * Selection text arrives with punctuation attached often enough that a single
+ * raw lookup would produce spurious "not found" results, so each cleaned-up
+ * variant is tried. For a multi-word selection this now collects every word
+ * that resolves rather than stopping at the first: showing only "brown" for
+ * "the quick brown fox" is arbitrary, and the whole point of the overlay is
+ * not requiring a second trip.
  */
-fun resolveSelection(dict: Dictionary, selection: String): Resolution? {
+fun resolveSelection(dict: Dictionary, selection: String): List<Resolution> {
+    val out = ArrayList<Resolution>(4)
+    val seen = HashSet<String>(4)
     for (candidate in TextNormalizer.candidates(selection)) {
         val r = dict.resolve(candidate)
-        if (r.entry != null) return r
+        val entry = r.entry ?: continue
+        if (seen.add(entry.headword)) out += r
     }
-    return null
+    return out
 }
