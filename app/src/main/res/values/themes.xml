@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Compose draws the content; these themes exist so the window does not flash
+      an unstyled frame before the first composition, and so the lookup activity
+      can float over the app it was launched from.
+    -->
+    <style name="Theme.Iris" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <!--
+      The lookup surface is deliberately not full-screen. A transparent window
+      over the source app reads closer to a popover than a fresh activity, which
+      is as near as Android gets to the iOS Lookup feel.
+    -->
+    <style name="Theme.Iris.Translucent" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+</resources>

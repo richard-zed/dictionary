@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- No permissions. The dictionary is baked in; nothing is fetched. -->
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Iris">
+
+        <!-- The app proper. Bonus, not the point. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Iris">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          The overlay. This is the point of the app.
+
+          ACTION_PROCESS_TEXT is the only system-wide way to receive highlighted
+          text on Android. It is not a floating popover the way iOS Lookup is:
+          it launches this activity over the source app, hands over the string,
+          and the user backs out to return. That difference is a presentation
+          limit, not something an implementation detail can fix -- the platform
+          offers no popover-shaped contract.
+
+          themeTranslucent keeps the takeover from reading as a full app launch.
+          -->
+        <activity
+            android:name=".LookupActivity"
+            android:exported="true"
+            android:label="@string/lookup_label"
+            android:theme="@style/Theme.Iris.Translucent"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

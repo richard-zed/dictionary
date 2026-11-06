@@ -1,0 +1,27 @@
+lib/
+out/
+*.jar
+
+# Gradle
+.gradle/
+build/
+local.properties
+
+app/build/
+*.hprof
+
+keystore.properties
+*.jks
+*.keystore
+
+# WordNet source dumps (26 MB, refetchable) and the derived dictionary binary.
+# The .dat/.frm are build outputs: reproducible from build_dict.py, and 17 MB of
+# binary in git would be permanent weight for something regenerated per clone.
+tools/wordnet/
+tools/*.dat
+tools/*.frm
+
+# The generated dictionary binary in assets. Same reasoning as tools/ above: it
+# is reproducible from build_dict.py, and 17 MB does not belong in history.
+app/src/main/assets/iris.dat
+app/src/main/assets/iris.frm
