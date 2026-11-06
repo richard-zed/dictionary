@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -63,7 +62,16 @@ fun SearchScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
-        Box(Modifier.safeDrawingPadding()) {
+        // Insets on the container, not on the text field. imePadding() on the
+        // field added keyboard-height padding underneath it, pushing the field
+        // up and leaving only a row or two of results. Here the whole layout
+        // shrinks instead, so the field stays at the bottom of the available
+        // space and the list gets the rest.
+        Box(
+            Modifier
+                .safeDrawingPadding()
+                .imePadding(),
+        ) {
             selected?.let { entry ->
                 Column(Modifier.fillMaxSize()) {
                     TextButton(onClick = { selected = null }, modifier = Modifier.padding(4.dp)) {
@@ -127,8 +135,6 @@ fun SearchScreen() {
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .imePadding()
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                 )
             }

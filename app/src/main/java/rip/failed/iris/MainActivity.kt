@@ -1,5 +1,6 @@
 package rip.failed.iris
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,7 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,5 +42,21 @@ fun IrisTheme(
         darkTheme -> rip.failed.iris.ui.theme.FallbackDark
         else -> rip.failed.iris.ui.theme.FallbackLight
     }
+    // System bars follow the Compose scheme rather than the platform theme.
+    // enableEdgeToEdge() derives them from whichever theme the window was
+    // created with, which here is a plain Material parent and knows nothing
+    // about the wallpaper palette -- so a Material You build would draw tonal
+    // surfaces under system bars tinted from somewhere else.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
+    }
+
     MaterialTheme(colorScheme = colorScheme, content = content)
 }

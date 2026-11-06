@@ -75,7 +75,11 @@ def read_index(pos_name: str) -> list[tuple[str, int, list[int]]]:
             fields = line.split()
             if len(fields) < 6:
                 continue
-            lemma = fields[0]
+            # WordNet stores multi-word entries with underscores ('run_of_the_
+            # mill'). Restore the spaces here, before sorting, so the index and
+            # what the user reads agree -- replacing them at display time would
+            # sort as underscores while searching as spaces.
+            lemma = fields[0].replace("_", " ")
             synset_cnt = int(fields[2])
             p_cnt = int(fields[3])
             start = 6 + p_cnt
