@@ -22,6 +22,12 @@ package rip.failed.iris.core
  */
 class Dictionary(private val buf: ByteArray, private val forms: FormIndex?) {
 
+    // Declared before the init block that assigns them: Kotlin initializes in
+    // declaration order, so a property assigned from an init above its own
+    // declaration is a compile error, not a warning.
+    private val entryCount: Int
+    private val stringsBase: Int
+
     init {
         require(buf.size >= HEADER_SIZE) { "dictionary file is empty" }
         require(String(buf, 0, 8, Charsets.US_ASCII) == MAGIC) {
@@ -36,9 +42,6 @@ class Dictionary(private val buf: ByteArray, private val forms: FormIndex?) {
 
     /** Number of distinct headwords. */
     val size: Int get() = entryCount
-
-    private val entryCount: Int
-    private val stringsBase: Int
 
     /** Entries in ascending byte order, which for UTF-8 is ascending codepoint order. */
     fun headwordAt(index: Int): String {
@@ -82,10 +85,15 @@ class Dictionary(private val buf: ByteArray, private val forms: FormIndex?) {
      * the second.
      */
     fun resolve(form: String): Resolution {
-        val direct = lookup(form)
+        // The headword table is lowercase throughout, so a selection that
+        // arrives capitalised -- a sentence-initial word, a proper noun --
+        // would otherwise miss on every comparison.
+        val lower = form.lowercase()
+
+        val direct = lookup(lower)
         if (direct != null) return Resolution(direct, form, matchedByRule = false)
 
-        val viaRules = resolveInflection(form, depth = 0)
+        val viaRules = resolveInflection(lower, depth = 0)
         return Resolution(viaRules, form, matchedByRule = viaRules != null)
     }
 
@@ -147,6 +155,22 @@ class Dictionary(private val buf: ByteArray, private val forms: FormIndex?) {
             partsOfSpeech = PartsOfSpeech.fromMask(posMask),
             glosses = glosses,
         )
+    }
+
+    /**
+     * First index whose headword is not less than [query], or [size] if there is
+     * none. This is a lower bound, not a match: the caller uses it to find where
+     * a prefix run starts and then walks forward while the prefix still holds.
+     */
+    fun firstIndexAtOrAfter(query: String): Int {
+        val target = query.toByteArray(Charsets.UTF_8)
+        var lo = 0
+        var hi = entryCount
+        while (lo < hi) {
+            val mid = (lo + hi) ushr 1
+            if (compareAt(mid, target) < 0) lo = mid + 1 else hi = mid
+        }
+        return lo
     }
 
     private fun indexOf(headword: String): Int {

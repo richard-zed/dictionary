@@ -29,8 +29,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import rip.failed.iris.core.Assets
+import rip.failed.iris.core.Dictionary
 import rip.failed.iris.core.Entry
-import rip.failed.iris.core.TextNormalizer
 import rip.failed.iris.ui.EntryPreview
 import rip.failed.iris.ui.EntryView
 
@@ -109,29 +109,27 @@ fun SearchScreen() {
 /**
  * Prefix search over the sorted headword table.
  *
- * Two lookups, not a scan: binary search for the query itself, and binary
- * search for the query with a high sentinel appended. Everything between the
- * two indices shares the prefix. The sentinel is U+10FFFF, which sorts above
- * every real character in UTF-8 byte order, so the upper bound is exact.
+ * One binary search to find where the prefix run starts, then a walk forward
+ * while the prefix still holds. The cost is proportional to the results shown,
+ * not to the size of the dictionary.
+ *
+ * The query is lowercased before the search because the table is lowercased
+ * throughout. Searching for "Dog" with case intact would binary-search past
+ * every real entry -- uppercase letters sort below lowercase -- land at the
+ * first headword, and match nothing.
  */
-fun search(dict: rip.failed.iris.core.Dictionary, query: String, limit: Int): List<Entry> {
-    val q = query.trim()
+fun search(dict: Dictionary, query: String, limit: Int): List<Entry> {
+    val q = query.trim().lowercase()
     if (q.isEmpty()) return emptyList()
 
     val first = dict.firstIndexAtOrAfter(q)
-    if (first < 0) return emptyList()
 
     val out = ArrayList<Entry>(minOf(limit, 16))
     var i = first
     while (i < dict.size && out.size < limit) {
-        val head = dict.headwordAt(i)
-        if (!head.startsWith(q, ignoreCase = true)) break
+        if (!dict.headwordAt(i).startsWith(q)) break
         out += dict.entryAt(i)
         i++
     }
     return out
 }
-
-/** Kept for the typeahead path; the overlay uses [TextNormalizer] instead. */
-@Suppress("unused")
-private fun normalise(query: String) = TextNormalizer.candidates(query)
