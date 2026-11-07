@@ -1,5 +1,6 @@
 package rip.failed.iris
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -58,11 +60,19 @@ fun SharedEntryScreen(selection: String) {
 /** The empty and not-found cases have no list to scroll, so they centre. */
 @Composable
 private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
-    Box(modifier.padding(20.dp), contentAlignment = Alignment.Center) {
+    // background() is diagnostic: a centred message on an unbounded Box has no
+    // intrinsic size, so a bare Text can measure to nothing and render blank.
+    // If the tint shows with no text, the Text is the problem; if neither
+    // shows, this composable never ran.
+    Box(
+        modifier = modifier.padding(20.dp).background(Color.Red.copy(alpha = 0.25f)),
+        contentAlignment = Alignment.Center,
+    ) {
         Text(
-            text,
+            text = text.ifEmpty { "EMPTY TEXT ARG" },
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
