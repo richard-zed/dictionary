@@ -29,6 +29,24 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!--
+              Share-sheet target. The hosts that refuse to show the
+              PROCESS_TEXT action still hand text to the share sheet, and this
+              is the only route that reaches every one of them -- including
+              Termux, which has no TextView and therefore never builds a
+              selection toolbar at all.
+
+              Three taps instead of one (select, share, Dictionary), so this is
+              a fallback and not a replacement for the overlay. It costs no
+              permission and no resident service, which is what made it worth
+              having over an accessibility service.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
 
         <!--
