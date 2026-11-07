@@ -1,6 +1,3 @@
-// No Kotlin plugin: AGP 9 compiles Kotlin itself. The Compose compiler plugin
-// is separate machinery and is still required.
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -15,15 +12,11 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "0.1"
+        versionName = "0.1.0"
     }
 
     buildTypes {
         release {
-            // Signed with the debug key on purpose. This is a personal app and
-            // there is no distribution plan; the moment there is one, this
-            // block has to grow a real signingConfig, and that swap forces one
-            // uninstall.
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -35,17 +28,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
         compose = true
     }
 
-    // The dictionary is 17 MB of already-compressed-mostly data. Leaving it
-    // uncompressed in the apk lets the loader read it straight out of the
-    // asset, which is the whole point of shipping it baked in.
     androidResources {
         noCompress += "dat"
         noCompress += "frm"
@@ -60,10 +50,7 @@ android {
 
 kotlin {
     compilerOptions {
-        // Must agree with compileOptions above. A mismatch compiles but
-        // produces class files the D8 pass then rejects, which reads as an
-        // unrelated error much later in the build.
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 }
 
