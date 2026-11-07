@@ -1,16 +1,15 @@
 package rip.failed.iris
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,9 +26,11 @@ import rip.failed.iris.ui.MultiEntryView
  * arrives as a normal activity launch and nothing about it should pretend to be
  * a popover.
  *
- * It scrolls as a whole rather than each entry scrolling independently, which
- * is what makes a multi-word selection readable instead of a set of small
- * scrollable boxes.
+ * The entry views are LazyColumns and own their own scrolling, so this screen
+ * must not scroll. Wrapping them in verticalScroll measured them with an
+ * unbounded height and crashed the frame -- a lazy list given infinite space has
+ * nothing to page against. They are handed the full size instead and scroll
+ * individually.
  */
 @Composable
 fun SharedEntryScreen(selection: String) {
@@ -39,27 +40,29 @@ fun SharedEntryScreen(selection: String) {
         else resolveSelection(Assets.dictionary(context), selection)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-    ) {
-        when {
-            selection.isBlank() -> Message("Nothing shared")
-            results.isEmpty() -> Message(stringResource(R.string.not_found, selection))
-            results.size == 1 -> EntryView(results.first().entry!!)
-            else -> MultiEntryView(results.mapNotNull { it.entry })
-        }
+    val modifier = Modifier
+        .fillMaxSize()
+        .safeDrawingPadding()
+
+    when {
+        selection.isBlank() -> CenteredMessage("Nothing shared", modifier)
+        results.isEmpty() -> CenteredMessage(
+            stringResource(R.string.not_found, selection),
+            modifier,
+        )
+        results.size == 1 -> EntryView(results.first().entry!!, modifier)
+        else -> MultiEntryView(results.mapNotNull { it.entry }, modifier)
     }
 }
 
+/** The empty and not-found cases have no list to scroll, so they centre. */
 @Composable
-private fun Message(text: String) {
-    Text(
-        text,
-        modifier = Modifier.fillMaxWidth(),
-        style = MaterialTheme.typography.bodyLarge,
-    )
+private fun CenteredMessage(text: String, modifier: Modifier = Modifier) {
+    Box(modifier.padding(20.dp), contentAlignment = Alignment.Center) {
+        Text(
+            text,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
 }
