@@ -68,7 +68,8 @@
             android:label="@string/lookup_label"
             android:theme="@style/Theme.Iris.Translucent"
             android:excludeFromRecents="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:taskAffinity="">
             <!--
               label lives on the FILTER, not the activity; the toolbar reads
               the filter's. No android:icon here on purpose, so the entry is
