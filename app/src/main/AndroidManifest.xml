@@ -70,20 +70,26 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop">
             <!--
-              priority ranks this entry within the selection toolbar. Higher
-              sorts earlier, which is the difference between visible and
-              demoted behind the overflow chevron on hosts with many actions.
+              icon and label live on the FILTER, not the activity. The
+              selection toolbar reads the filter's icon, so without them the
+              entry renders as bare text with no glyph.
+
+              PROCESS_TEXT_READONLY covers selections the host considers
+              read-only, which is most browser and reader text. A host that
+              queries only that action would not list this activity at all.
 
               text/* is declared alongside text/plain because some hosts probe
-              with the wildcard rather than the concrete type; a host doing an
-              exact match for text/* would otherwise miss this activity.
+              with the wildcard rather than the concrete type.
 
               No <queries> here: that element belongs on the HOST side to see
-              PROCESS_TEXT activities, and a host missing it truncates its own
-              list. Nothing in this manifest can reach that.
+              PROCESS_TEXT activities. Nothing in this manifest can reach it.
             -->
-            <intent-filter android:priority="100">
+            <intent-filter
+                android:priority="1000"
+                android:icon="@mipmap/ic_launcher"
+                android:label="@string/lookup_label">
                 <action android:name="android.intent.action.PROCESS_TEXT" />
+                <action android:name="android.intent.action.PROCESS_TEXT_READONLY" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
                 <data android:mimeType="text/*" />
