@@ -69,10 +69,24 @@
             android:theme="@style/Theme.Iris.Translucent"
             android:excludeFromRecents="true"
             android:launchMode="singleTop">
-            <intent-filter>
+            <!--
+              priority ranks this entry within the selection toolbar. Higher
+              sorts earlier, which is the difference between visible and
+              demoted behind the overflow chevron on hosts with many actions.
+
+              text/* is declared alongside text/plain because some hosts probe
+              with the wildcard rather than the concrete type; a host doing an
+              exact match for text/* would otherwise miss this activity.
+
+              No <queries> here: that element belongs on the HOST side to see
+              PROCESS_TEXT activities, and a host missing it truncates its own
+              list. Nothing in this manifest can reach that.
+            -->
+            <intent-filter android:priority="100">
                 <action android:name="android.intent.action.PROCESS_TEXT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
+                <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
     </application>
