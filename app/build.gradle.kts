@@ -58,8 +58,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.hamcrest.core)
 
-    // The BOM has no version on the entries it governs, deliberately: adding
-    // one there would silently override the BOM and defeat the point of it.
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
