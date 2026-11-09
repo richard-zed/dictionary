@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.gradle.api.GradleException
 
 val keystorePropsFile = rootProject.file("keystore.properties")
 val keystoreProps = Properties().apply {
@@ -37,7 +38,17 @@ android {
     }
 
     buildTypes {
-        release {
+        release {                                               if (!hasReleaseKey) {
+            	val wantsRelease = gradle.startParameter.taskNames.any {
+                	it.contains("Release", ignoreCase = true)
+                }
+                if (wantsRelease) {
+                	throw GradleException("Release signing needs keystore.properties at the repo root " + "(storeFile, storePassword, keyAlias, keyPassword). " + "Use :app:assembleDebug for a debug build instead.")
+                }
+            } if (hasReleaseKey) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
