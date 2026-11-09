@@ -45,7 +45,8 @@ android {
                 if (wantsRelease) {
                 	throw GradleException("Release signing needs keystore.properties at the repo root " + "(storeFile, storePassword, keyAlias, keyPassword). " + "Use :app:assembleDebug for a debug build instead.")
                 }
-            } if (hasReleaseKey) {
+            }
+            if (hasReleaseKey) {
                 signingConfig = signingConfigs.getByName("release")
             }
         
