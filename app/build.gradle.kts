@@ -1,9 +1,30 @@
+import java.util.Properties
+
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) {
+        keystorePropsFile.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKey = keystoreProps.getProperty("storeFile") != null
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+               storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+               storePassword = keystoreProps.getProperty("storePassword")
+               keyAlias = keystoreProps.getProperty("keyAlias")
+               keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     namespace = "rip.failed.iris"
     compileSdk = 37
 
